@@ -379,7 +379,9 @@
                     {
                         var row = Clamp(position / colCount, rowCount - 1);
                         var col = Clamp(position % colCount, colCount - 1);
-                        if (skip[row, col])
+
+                        
+                        while (skip[row, col])
                         {
                             position++;
                             row = (position / colCount);
@@ -388,19 +390,27 @@
 
                         Grid.SetRow(child, row);
                         Grid.SetColumn(child, col);
-                        position += Grid.GetColumnSpan(child);
 
-                        var offset = Grid.GetRowSpan(child) - 1;
-                        while (offset > 0)
+                        var rowspan = Grid.GetRowSpan(child);
+                        var colspan = Grid.GetColumnSpan(child);
+                        for(var i =0; i< rowspan; i++)
                         {
-                            skip[row + offset--, col] = true;
+                            for(var j=0; j< colspan; j++)
+                            {
+                                if (i == 0 && j == 0) continue;
+                                if (row + i >= rowCount ||
+                                    col + j >= colCount) continue;
+                                skip[row + i, col + j] = true;
+                            }
                         }
+                        position += Grid.GetColumnSpan(child);
+                        
                     }
                     else
                     {
                         var row = Clamp(position % rowCount, rowCount - 1);
                         var col = Clamp(position / rowCount, colCount - 1);
-                        if (skip[row, col])
+                        while (skip[row, col])
                         {
                             position++;
                             row = position % rowCount;
@@ -409,13 +419,20 @@
 
                         Grid.SetRow(child, row);
                         Grid.SetColumn(child, col);
-                        position += Grid.GetRowSpan(child);
 
-                        var offset = Grid.GetColumnSpan(child) - 1;
-                        while (offset > 0)
+                        var rowspan = Grid.GetRowSpan(child);
+                        var colspan = Grid.GetColumnSpan(child);
+                        for (var i = 0; i < rowspan; i++)
                         {
-                            skip[row, col + offset--] = true;
+                            for (var j = 0; j < colspan; j++)
+                            {
+                                if (i == 0 && j == 0) continue;
+                                if (row + i >= rowCount ||
+                                    col + j >= colCount) continue;
+                                skip[row + i, col + j] = true;
+                            }
                         }
+                        position += Grid.GetRowSpan(child);
                     }
                 }
 
